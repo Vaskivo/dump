@@ -90,6 +90,18 @@ def far(n_parts, image, result_filename):
     new_image = image.transform((original_size), Image.PERSPECTIVE, coeffs, Image.BICUBIC)
     new_image.save(result_filename, 'PNG')
     
+    
+    
+def corridor(from_n_part, to_n_part, image, result_filename):
+    from_part = from_n_part * x_part
+    to_part = to_n_part * x_part
+    
+    # left segment
+    
+    # top left
+    f1 = get_line_equation(
+    
+    
 # far(1, img, 'far.png')
 
     
