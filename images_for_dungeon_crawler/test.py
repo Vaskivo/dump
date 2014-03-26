@@ -93,16 +93,62 @@ def far(n_parts, image, result_filename):
     
     
 def corridor(from_n_part, to_n_part, image, result_filename):
-    from_part = from_n_part * x_part
-    to_part = to_n_part * x_part
     
     # left segment
     
-    # top left
-    f1 = get_line_equation(
+    from_part = from_n_part * x_part
+    to_part = to_n_part * x_part
+    
+    # top left & top right
+    f1 = get_line_equation(0, 0, *vanishing_point)
+    tmp1 = f1(x = from_part)
+    tmp2 = f1(x = to_part)
+    l_top_left = (from_part, tmp1)
+    l_top_right = (to_part, tmp2)
+    
+    # bottom left & bottom right
+    f2 = get_line_equation(0, y_size, *vanishing_point)
+    tmp1 = f2(x = from_part)
+    tmp2 = f2(x = to_part)
+    l_bottom_left = (from_part, tmp1)
+    l_bottom_right = (to_part, tmp2)
+    
+    coeffs = find_coeffs([l_top_left, l_top_right, l_bottom_right, l_bottom_left],
+                         [(0, 0), (x_size, 0), (x_size, y_size), (0, y_size)])
+                         
+    new_image = image.transform((original_size), Image.PERSPECTIVE, coeffs, Image.BICUBIC)
+    new_image.save('l_' + result_filename, 'PNG')
+    
+    # right segment
+    
+    from_part = x_size - to_n_part * x_part
+    to_part = x_size - from_n_part * x_part
+    print(from_part, to_part)
+    
+    # top left & top right
+    f1 = get_line_equation(x_size, 0, *vanishing_point)
+    tmp1 = f1(x = from_part)
+    tmp2 = f1(x = to_part)
+    r_top_left = (from_part, tmp1)
+    r_top_right = (to_part, tmp2)
+    
+    # bottom left & bottom right
+    f2 = get_line_equation(x_size, y_size, *vanishing_point)
+    tmp1 = f2(x = from_part)
+    tmp2 = f2(x = to_part)
+    r_bottom_left = (from_part, tmp1)
+    r_bottom_right = (to_part, tmp2)
+    
+    coeffs = find_coeffs([r_top_left, r_top_right, r_bottom_right, r_bottom_left],
+                         [(0, 0), (x_size, 0), (x_size, y_size), (0, y_size)])
+    
+    new_image = image.transform((original_size), Image.PERSPECTIVE, coeffs, Image.BICUBIC)
+    new_image.save('r_' + result_filename, 'PNG')
     
     
 # far(1, img, 'far.png')
+corridor(0, 1, img, 'left.png')
+
 
     
 
