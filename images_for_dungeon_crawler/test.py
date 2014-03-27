@@ -79,17 +79,14 @@ def far(n_parts, image, result_filename):
     tmp = f4(x=(x_size-part))
     down_right = (x_size-part, tmp)
     
-    print up_left
-    print up_right
-    print down_left
-    print down_right
-    
     coeffs = find_coeffs([up_left, up_right, down_right, down_left],
                          [(0, 0), (x_size, 0), (x_size, y_size), (0, y_size)])
                          
     new_image = image.transform((original_size), Image.PERSPECTIVE, coeffs, Image.BICUBIC)
-    new_image.save(result_filename, 'PNG')
-    
+    #new_image.save(result_filename, 'PNG')
+    nn = Image.new('RGB', (512, 384))
+    nn.paste(new_image, (0, 0))
+    nn.save(result_filename, 'PNG')
     
     
 def corridor(from_n_part, to_n_part, image, result_filename):
@@ -146,8 +143,8 @@ def corridor(from_n_part, to_n_part, image, result_filename):
     new_image.save('r_' + result_filename, 'PNG')
     
     
-# far(1, img, 'far.png')
-corridor(0, 1, img, 'left.png')
+far(-2, img, 'nearnear.png')
+#corridor(0, 1, img, 'left.png')
 
 
     
