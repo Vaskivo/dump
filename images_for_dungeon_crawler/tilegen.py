@@ -165,6 +165,11 @@ def generate_tiles(source_wall_filename, vanishing_point_offset, result_filename
         result_trapezes['f'*(depth-x)] = front_t
         
         # creating the 'side walls' (corridor)
+        t_size = trapeze_size(front_t)
+        for x in count():
+            
+            
+        
         left_t = _generate_corridor_coordinates(vanishing_point, 
                                                 front_t.tl, 
                                                 front_t.bl, 
