@@ -11,8 +11,8 @@ Trapeze = namedtuple('Trapeze', 'tl tr br bl')
 
 
 def trapeze_size(trapeze):
-    return tuple(max(tr.x, br.x) - min(tl.x, bl.x),
-                 max(bl.y, br.y) - min(tl.y, tr.y))
+    return (max(trapeze.tr.x, trapeze.br.x) - min(trapeze.tl.x, trapeze.bl.x),
+            max(trapeze.bl.y, trapeze.br.y) - min(trapeze.tl.y, trapeze.tr.y))
     
     
 def _find_coeffs(pa, pb):
@@ -166,22 +166,34 @@ def generate_tiles(source_wall_filename, vanishing_point_offset, result_filename
         
         # creating the 'side walls' (corridor)
         t_size = trapeze_size(front_t)
-        for x in count():
-            
-            
+        for x in count(1):
+            print(x)
+            no_left = True
+            no_right = True
+            if (result_image.size[0] - t_size[0])/2 - t_size[0]*x >= 0:
+                # corridor on the left
+                tl = Point(front_t.tl[0] - t_size[0]*x, front_t.tl[1])
+                bl = Point(front_t.bl[0] - t_size[0]*x, front_t.bl[1])
         
-        left_t = _generate_corridor_coordinates(vanishing_point, 
-                                                front_t.tl, 
-                                                front_t.bl, 
-                                                result_image.size[0]/2 - (x+1)*part)
-        right_t = _generate_corridor_coordinates(vanishing_point, 
-                                                 front_t.tr,
-                                                 front_t.br, 
-                                                 result_image.size[0]/2 + (x+1)*part)
-        result_trapezes['f'*(depth-x) + 'l'] = left_t
-        result_trapezes['f'*(depth-x) + 'r'] = right_t
-        
-    
+                left_t = _generate_corridor_coordinates(vanishing_point, 
+                                                        tl, 
+                                                        bl, 
+                                                        (result_image.size[0] - t_size[0])/2 - t_size[0]*x - part)
+                result_trapezes['f'*(depth-x) + 'l'*x] = left_t
+                
+                no_left = False
+            if (result_image.size[0] + t_size[0])/2 + t_size[0]*x < result_image.size[0]:
+                # corridor to the right
+                tr = Point(front_t.tr[0] + t_size[0]*x, front_t.tr[1])
+                br = Point(front_t.br[0] + t_size[0]*x, front_t.br[1])
+                right_t = _generate_corridor_coordinates(vanishing_point, 
+                                                         tr,
+                                                         br, 
+                                                         (result_image.size[0] + t_size[0])/2 + t_size[0]*x + part)
+                result_trapezes['f'*(depth-x) + 'r'*x] = right_t
+                no_right = False
+            if no_left and no_right:
+                break
     
     result_trapezes['n'] = near_t    
         
