@@ -104,9 +104,9 @@ def generate_tiles(source_wall_filename, vanishing_point, result_filename, depth
     part = result_image.size[0] / (depth * 2)
     
     result_trapezes = {}
-    for x in range(0, depth):
-        print(x, (x+1)*part, depth-x)
-        t = _generate_wall_coordinates(vanishing_point, (x+1)*part, *source_box)
+    for x in range(1, depth):
+        print(x, (x)*part, depth-x)
+        t = _generate_wall_coordinates(vanishing_point, (x)*part, *source_box)
         result_trapezes['f'*(depth-x)] = t
 
     for k in result_trapezes.keys():
@@ -114,6 +114,8 @@ def generate_tiles(source_wall_filename, vanishing_point, result_filename, depth
         coeffs = _find_coeffs(list(result_trapezes[k]), list(source_box))
         new_image = result_image.transform(result_image.size, 
                                            Image.PERSPECTIVE,
+
+
                                            coeffs,
                                            Image.BICUBIC)
         new_image.save('{0}_{1}.png'.format(result_filename, k), 'PNG')
@@ -122,5 +124,5 @@ def generate_tiles(source_wall_filename, vanishing_point, result_filename, depth
 
 
 if __name__ == '__main__':
-    generate_tiles('final_wall.png', Point(128,96), 'cenas', 4)
+    generate_tiles('final_wall.png', Point(128,96), 'cenas', 5)
     
