@@ -4,15 +4,36 @@ from __future__ import division
 from collections import namedtuple
 from itertools import count
 from PIL import Image
+import os
+import json
 import numpy
 
 Point = namedtuple('Point', 'x y')
 Trapeze = namedtuple('Trapeze', 'tl tr br bl')
 
 
+
 def trapeze_size(trapeze):
     return (max(trapeze.tr.x, trapeze.br.x) - min(trapeze.tl.x, trapeze.bl.x),
             max(trapeze.bl.y, trapeze.br.y) - min(trapeze.tl.y, trapeze.tr.y))
+
+
+def trapeze_to_dict(trapeze):
+    return dict(( ('top_left', tuple(trapeze.tl)),
+                  ('top_right', tuple(trapeze.tr)),
+                  ('bottom_right', tuple(trapeze.br)),
+                  ('bottom_left', tuple(trapeze.bl)),
+                  ('size', trapeze_size(trapeze)),
+               ))
+
+def trapeze_to_box(trapeze):
+    return ( min(trapeze.tl.x, trapeze.bl.x),
+             min(trapeze.tr.y, trapeze.tr.y),
+             max(trapeze.tr.x, trapeze.br.x),
+             max(trapeze.bl.y, trapeze.br.y) 
+           )
+
+
     
     
 def _find_coeffs(pa, pb):
@@ -163,8 +184,7 @@ def generate_tiles(source_wall_filename, vanishing_point_offset, result_filename
     result_trapezes['n_r'] = right_t
                 
 
-    for j in range(depth-1, 0, -1):
-        
+    for j in range(depth-1, 0, -1): 
         # creating the 'front walls'
         front_t = _generate_wall_coordinates(vanishing_point, (j)*part, *source_box)
         result_trapezes['f'*(depth-j)] = front_t
@@ -199,22 +219,41 @@ def generate_tiles(source_wall_filename, vanishing_point_offset, result_filename
             if no_left and no_right:
                 break
         
-    for k in result_trapezes.keys():
-        
+    # preparing to save stuff
+    save_dir = os.path.join(os.getcwd(), result_filename)
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    result_images = {}
+    result_json = { 'image_size' : result_image.size,
+                         'tiles' : {}
+                       }
+    
+    for k in result_trapezes.keys(): 
         coeffs = _find_coeffs(list(result_trapezes[k]), list(source_box))
         new_image = result_image.transform(result_image.size, 
                                            Image.PERSPECTIVE,
                                            coeffs,
                                            Image.BICUBIC)
-        
-        new_image.save('{0}_{1}.png'.format(result_filename, k), 'PNG')
+        if crop:
+            box = trapeze_to_box(result_trapezes[k])
+            box = tuple(round(x) for x in box)
+            new_image = new_image.crop(box)
 
+        tile_filename = '{0}_{1}.png'.format(result_filename, k) 
+        new_image.save(os.path.join(save_dir, tile_filename), 'PNG')
+        result_json['tiles'][tile_filename] = trapeze_to_dict(result_trapezes[k])
+
+    json_file = os.path.join(save_dir, result_filename + '.json')
+    with open(json_file, 'w') as result_json_file:
+        json.dump(result_json, result_json_file, sort_keys=True, indent=4)
 
 
 
 if __name__ == '__main__':
     #generate_tiles('final_wall.png', (0, 0), 'cenas', 5, new_size=(256, 192))
     generate_tiles('final_wall.png', (0, -30), 'cenas', 4, new_size=(288, 216))
+    #generate_tiles('final_wall.png', (0, -30), 'cenas', 4, new_size=(288, 216), crop=True)
     #generate_tiles('final_wall.png', (0, 0), 'cenas', 4, new_size=(320, 240))
     #generate_tiles('final_wall.png', (0, 0), 'cenas', 5, new_size=(512, 288))
     
