@@ -93,14 +93,12 @@ def _generate_corridor_coordinates(vanishing_point, from_top_point, from_bottom_
     
     if from_top_point.x > to_x:
         # left corridor wall
-        print("LEFT", from_top_point.x, to_x)
         ul_result = Point(to_x, y_t)
         bl_result = Point(to_x, y_b)
         ur_result = from_top_point
         br_result = from_bottom_point
     else:
         # right corridor wall
-        print("RIGHT", from_top_point.x, to_x)
         ur_result = Point(to_x, y_t)
         br_result = Point(to_x, y_b)
         ul_result = from_top_point
@@ -142,60 +140,64 @@ def generate_tiles(source_wall_filename, vanishing_point_offset, result_filename
                              Point(source_image.size[0], 0),
                              Point(source_image.size[0], source_image.size[1]),
                              Point(0, source_image.size[1]))
-                             
-    result_image.save('{0}.png'.format(result_filename), 'PNG')
         
     vanishing_point = Point(result_image.size[0]/2 + vanishing_point_offset[0],
                             result_image.size[1]/2 + vanishing_point_offset[1])
     part = source_image.size[0] / (depth * 2)
-    print(part, part*2)
-    
-    print('Depth Capacity {0}'.format(result_image.size[0] / (part*2)))
-    
-    near_t = _generate_wall_coordinates(vanishing_point, (depth+1)*part, *source_box)
-    # print("Near {}".format(near_t))
-    
     
     result_trapezes = {}
-    for x in range(depth-1, 0, -1):
-        print(x, (x)*part, depth-x)
+
+    # near tile
+    result_trapezes['n'] = source_box
+    # near left tile
+    left_t = _generate_corridor_coordinates(vanishing_point, 
+                                            source_box.tl,
+                                            source_box.bl,
+                                            (result_image.size[0] - source_image.size[0])/2 - part)
+    result_trapezes['n_l'] = left_t
+    # near right tile
+    right_t = _generate_corridor_coordinates(vanishing_point, 
+                                             source_box.tr,
+                                             source_box.br,
+                                             (result_image.size[0] + source_image.size[0])/2 + part)
+    result_trapezes['n_r'] = right_t
+                
+
+    for j in range(depth-1, 0, -1):
         
         # creating the 'front walls'
-        front_t = _generate_wall_coordinates(vanishing_point, (x)*part, *source_box)
-        result_trapezes['f'*(depth-x)] = front_t
+        front_t = _generate_wall_coordinates(vanishing_point, (j)*part, *source_box)
+        result_trapezes['f'*(depth-j)] = front_t
         
         # creating the 'side walls' (corridor)
         t_size = trapeze_size(front_t)
-        for x in count(1):
-            print(x)
+        for i in count(0):
             no_left = True
             no_right = True
-            if (result_image.size[0] - t_size[0])/2 - t_size[0]*x >= 0:
+            if (result_image.size[0] - t_size[0])/2 - t_size[0]*i >= 0:
                 # corridor on the left
-                tl = Point(front_t.tl[0] - t_size[0]*x, front_t.tl[1])
-                bl = Point(front_t.bl[0] - t_size[0]*x, front_t.bl[1])
+                tl = Point(front_t.tl[0] - t_size[0]*i, front_t.tl[1])
+                bl = Point(front_t.bl[0] - t_size[0]*i, front_t.bl[1])
         
                 left_t = _generate_corridor_coordinates(vanishing_point, 
                                                         tl, 
                                                         bl, 
-                                                        (result_image.size[0] - t_size[0])/2 - t_size[0]*x - part)
-                result_trapezes['f'*(depth-x) + 'l'*x] = left_t
+                                                        (result_image.size[0] - t_size[0])/2 - t_size[0]*i - part)
+                result_trapezes['f'*(depth-j) + '_' + 'l'*(i+1)] = left_t
                 
                 no_left = False
-            if (result_image.size[0] + t_size[0])/2 + t_size[0]*x < result_image.size[0]:
+            if (result_image.size[0] + t_size[0])/2 + t_size[0]*i < result_image.size[0]:
                 # corridor to the right
-                tr = Point(front_t.tr[0] + t_size[0]*x, front_t.tr[1])
-                br = Point(front_t.br[0] + t_size[0]*x, front_t.br[1])
+                tr = Point(front_t.tr[0] + t_size[0]*i, front_t.tr[1])
+                br = Point(front_t.br[0] + t_size[0]*i, front_t.br[1])
                 right_t = _generate_corridor_coordinates(vanishing_point, 
                                                          tr,
                                                          br, 
-                                                         (result_image.size[0] + t_size[0])/2 + t_size[0]*x + part)
-                result_trapezes['f'*(depth-x) + 'r'*x] = right_t
+                                                         (result_image.size[0] + t_size[0])/2 + t_size[0]*i + part)
+                result_trapezes['f'*(depth-j) + '_' + 'r'*(i+1)] = right_t
                 no_right = False
             if no_left and no_right:
                 break
-    
-    result_trapezes['n'] = near_t    
         
     for k in result_trapezes.keys():
         
@@ -204,6 +206,7 @@ def generate_tiles(source_wall_filename, vanishing_point_offset, result_filename
                                            Image.PERSPECTIVE,
                                            coeffs,
                                            Image.BICUBIC)
+        
         new_image.save('{0}_{1}.png'.format(result_filename, k), 'PNG')
 
 
@@ -211,7 +214,7 @@ def generate_tiles(source_wall_filename, vanishing_point_offset, result_filename
 
 if __name__ == '__main__':
     #generate_tiles('final_wall.png', (0, 0), 'cenas', 5, new_size=(256, 192))
-    generate_tiles('final_wall.png', (0, 0), 'cenas', 3, new_size=(288, 216))
+    generate_tiles('final_wall.png', (0, -30), 'cenas', 4, new_size=(288, 216))
     #generate_tiles('final_wall.png', (0, 0), 'cenas', 4, new_size=(320, 240))
     #generate_tiles('final_wall.png', (0, 0), 'cenas', 5, new_size=(512, 288))
     
