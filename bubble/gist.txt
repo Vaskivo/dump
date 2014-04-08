@@ -1,0 +1,39 @@
+
+BUBBLE POP / POPPERS / * VIRUS SOMETHING *
+
+Your device is full of viruses. You need to clean it or they will take control
+of it!
+
+
+** GAMEPLAY
+
+Circles will appear on the screen and start constantly expanding.
+If there is a point where the circles can no longer expand, you lose the game
+(the screen bursts/explodes/cracks)
+
+To prevent this, the player must tap (frenetically) the circles. Each time he 
+taps, the circle reduce in size. When a circle reduces below a certain size,
+it vanishes.
+
+Circles may start with different sizes and have different speeds of growth.
+
+The game is divided into levels.
+    - Each level last 20 / 30 seconds
+    - As the level progress, the number of circles that appear increases, as their
+        speed of growth (in average).
+    - * At the end of the level, there is a "slot machine" that unleashes good or
+        bad things for the next level. Ex:
+            - Slower circles
+            - Faster circles
+            - Increase in tap power (tap reduces more in the circles)
+            - More circles
+            - etc..
+    - * Powerups
+        Appear with the "slot machine" or by themselves:
+            - Chill Bomb - Reduces speed of circle grown for a time.
+            - Black Hole - Reduces surrounding circles. 
+                (limited uses / one time use & time dependant)
+            - etc
+    - Scoring: You score points for each circle eliminated equal to *the maximum size 
+        it reached*. This gives a "push your luck" aspect to the game.
+     

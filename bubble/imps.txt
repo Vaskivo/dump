@@ -1,0 +1,23 @@
+
+LOOPS & TIME TRACKING
+
+- main_loop -> coroutine
+    - updates the bubble every loop
+    - checks for end level & other flags
+    
+- end_level_timer -> timer
+    - counts to X seconds, marking the end of the level
+    
+- spawner ???
+
+
+
+
+
+GAME SCENE
+
+    - bubble_list
+    - points
+    - spawnBubble()
+    - updateBubbles()
+    - 
