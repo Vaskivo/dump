@@ -13,15 +13,16 @@ layer:setViewport(viewport)
 MOAISim.pushRenderPass(layer)
 
 world = MOAIBox2DWorld.new()
-world:setUnitsToMeters(1)
+world:setUnitsToMeters(1/32)
+world:setIterations(1,8) 
 world:start()
 layer:setBox2DWorld(world)
 
  
 bubble_list = {} 
  
-bubble_list[#bubble_list+1] = Bubble.new(-200, 0, 25, 1, {1, 0, 0, 1}, world)
-bubble_list[#bubble_list+1] = Bubble.new(-100, -50, 25, 1, {1, 0, 0, 1}, world)
+bubble_list[#bubble_list+1] = Bubble.new(-200, 0, 5, 1, {1, 0, 0, 1}, world)
+bubble_list[#bubble_list+1] = Bubble.new(-100, -50, 5, 1, {1, 0, 0, 1}, world)
 --bubble_list[#bubble_list+1] = Bubble.new(30, 30, 25, 1, {1, 0, 0, 1}, world)
 --bubble_list[#bubble_list+1] = Bubble.new(0, -40, 35, 1, {1, 0, 0, 1}, world)
 --bubble_list[#bubble_list+1] = Bubble.new(-30, -40, 10, 1, {1, 0, 0, 1}, world)

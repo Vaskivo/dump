@@ -11,11 +11,11 @@ function Bubble.new(x, y, starting_radius, growth_speed, color, box2d_world)
     local deck = MOAIScriptDeck.new()
     deck:setDrawCallback(function()
             local radius = bubble.radius
-            --MOAIGfxDevice.setPenColor(unpack(color))
-            --MOAIDraw.fillCircle(0, 0, radius, 32)
-            --MOAIGfxDevice.setPenColor(1,1,1,1)
-            --MOAIGfxDevice.setPenWidth(3)
-            --MOAIDraw.drawCircle(0,0,radius,32)
+            MOAIGfxDevice.setPenColor(unpack(color))
+            MOAIDraw.fillCircle(0, 0, radius, 32)
+            MOAIGfxDevice.setPenColor(1,1,1,1)
+            MOAIGfxDevice.setPenWidth(3)
+            MOAIDraw.drawCircle(0,0,radius,32)
             -- I should use setRectCallback (but I don't know how!)
             deck:setRect(-radius, -radius, radius, radius) 
         end
@@ -24,15 +24,22 @@ function Bubble.new(x, y, starting_radius, growth_speed, color, box2d_world)
     
     local prop = MOAIProp2D.new()
     prop:setDeck(deck)
-    prop:setLoc(x, y)
+    prop:setLoc(0, 0)
     
     local body = box2d_world:addBody(MOAIBox2DBody.DYNAMIC)
     body:setTransform(x, y)
     
-    prop:setAttrLink (MOAITransform.ATTR_X_LOC, body, MOAITransform.ATTR_X_LOC)
-    prop:setAttrLink (MOAITransform.ATTR_Y_LOC, body, MOAITransform.ATTR_Y_LOC)
+    -- messes up the body location.
+    --prop:setAttrLink (MOAITransform.ATTR_X_LOC, body, MOAITransform.ATTR_X_LOC)
+    --prop:setAttrLink (MOAITransform.ATTR_Y_LOC, body, MOAITransform.ATTR_Y_LOC)
     
-    local fixture = body:addCircle(0, 0, 50)
+    -- prop doesn't copy location correctly
+    prop:setAttrLink ( MOAIProp2D.INHERIT_LOC, body, MOAIProp2D.TRANSFORM_TRAIT ) 
+    
+    -- but, but... it's deprecated :(
+    --prop:setParent(body) 
+    
+    local fixture = body:addCircle(0, 0, starting_radius)
     fixture:setCollisionHandler(Bubble._collision_callback, MOAIBox2DArbiter.END)
     
     fixture:setDensity(1)
@@ -51,7 +58,8 @@ function Bubble.new(x, y, starting_radius, growth_speed, color, box2d_world)
     
     bubble.body.data = bubble
     
-    print(body:getWorldCenter())
+    print(body:getPosition())
+    print(prop:getLoc())
     
     return bubble
 end
@@ -67,6 +75,9 @@ function Bubble.update_fixture(self)
     --local x, y = self.body:getPosition()
     self.fixture = self.body:addCircle(0, 0, self.radius)
     self.fixture:setCollisionHandler(Bubble._collision_callback, MOAIBox2DArbiter.END)
+    self.fixture:setDensity(1)
+    self.fixture:setFriction(0)
+    self.body:resetMassData()
 end
 
 
