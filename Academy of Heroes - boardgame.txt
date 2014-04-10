@@ -1,0 +1,60 @@
+
+Worker placement game
+
+- Students
+    - Special abilities (cards)
+    - Stats (cubes)
+- Classes / Teachers
+- Quests
+- Headmaster / student council
+- Special abilities / magic
+- Money / Respect
+
+
+## Students
+
+- Each student has two workers (time slots)
+- Each student has stats
+    - Fighting
+    - Magical
+    - Clerical
+- Going to classes to raises stats
+
+
+## Classes
+
+- Students go to classes to raise their stats
+- Instead of raising stats, student can get special abilities.
+- Classes can be upgraded.
+- New classes can be built.
+
+
+## Quests
+
+- Quests require a minimum X in a stat to be completed.
+- Quests reward players with VPs and Money
+- More than one worker can be assigned to the quest
+- Rewards are hierarchical (worker with top stat get X, 2nd top gets Y, etc)
+
+
+
+## Gameplay
+
+Each player starts with two generic students.
+
+At the beggining of the game, each player draws X cubes at random, and assigns 
+them to their students - Each student starts out unique.
+
+
+
+
+
+## Places in the board
+
+- Classes - Start with 3, more can be built
+- Quests - 2 / 3 places
+- Headmaster council - first player. Maybe mess with event cards
+- Ritual Zone - maybe to play special cards
+- Spreading Rumors Zone - gain respect
+
+
