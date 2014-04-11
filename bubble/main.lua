@@ -87,4 +87,65 @@ run_time = MOAISim.getElapsedTime() -- I'm hoping this is a float
 thread:run(main)
     
     
+--[[
+
+    Touch callback arguments:
+    
+    eventType   - TOUCH_UP, TOUCH_DOWN or TOUCH_MOVE
+    idx         - id of the touch registered
+    x           - x of the touch (in screen coordinates)
+    y           - y of the touch (in screen coordinates)
+    tapCount    - Total number of taps (registered since last iteration or current total??)
+
+]]--
+
+
+touch_list = {}
+
+if MOAIInputMgr.device.pointer then
+    MOAIInputMgr.device.mouseLeft:setCallback(
+        function(isMouseDown)
+            if(isMouseDown) then
+                local x, y = layer:wndToWorld(MOAIInputMgr.device.pointer:getLoc())
+                local prop = partition:propForPoint(x, y)
+                -- if prop is a bubble...
+                touch_list.MOUSE = prop
+            else
+                local x, y = layer:wndToWorld(MOAIInputMgr.device.pointer:getLoc())
+                local prop = partition:propForPoint(x, y)
+                if touch_list.MOUSE and (touch_list.MOUSE == prop) then
+                    prop.tapped = true
+                end
+            end
+        end
+        )
+    MOAIInputMgr.device.mouseRight:setCallback(
+        function(isMouseDown)
+            if(isMouseDown) then
+                -- MOUSE RIGHT DOWN
+            else 
+                -- MOUSE LEFT RIGHT
+            else
+        end
+        )
+else
+-- If it isn't a mouse, its a touch screen... or some really weird device.
+    MOAIInputMgr.device.touch:setCallback (
+
+        function ( eventType, idx, x, y, tapCount )
+            -- RANDOM SHIT AROUND HERE
+        end
+    )
+end
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     

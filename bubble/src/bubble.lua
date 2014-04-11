@@ -5,7 +5,7 @@ Bubble.__index = Bubble
 
 -- constructor
 
-function Bubble.new(x, y, starting_radius, growth_speed, tap_shrink, color, box2d_world)
+function Bubble.new(x, y, starting_radius, min_radius, growth_speed, tap_shrink, color, box2d_world)
     local bubble = setmetatable({}, Bubble)
 
     local deck = MOAIScriptDeck.new()
@@ -42,6 +42,7 @@ function Bubble.new(x, y, starting_radius, growth_speed, tap_shrink, color, box2
     bubble.radius = starting_radius
     bubble.old_fixture_radius = starting_radius
     
+    bubble.min_radius = min_radius
     bubble.growth_speed = growth_speed
     bubble.tap_shrink = tap_shrink
     bubble.color = color
@@ -69,6 +70,16 @@ function Bubble.increase_radius_with_time(self, delta_time)
     self.radius = self.radius + (self.growth_speed * delta_time)
 end
 
+function Bubble.register_tap(self)
+    if not self.tapped then
+        return
+    end
+    self.radius = self.radius - self.tap_shrink
+    
+    -- if radius < threshold then destroy()... or something
+    self.tapped = false
+end
+
 
 function Bubble.update_fixture(self)
     if not self.fixture then
@@ -89,6 +100,9 @@ function Bubble.update_fixture(self)
     self.body:resetMassData()
     
     self.old_fixture_radius = new_radius
+    
+    -- default inits
+    self.tapped = false
 end
 
 
