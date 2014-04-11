@@ -54,6 +54,33 @@ function BubbleManager.destroy_bubble(self, bubble)
 end
 
 
+-- TEMP
 
+function BubbleManager.spawn_bubble(self, min_x, min_y, max_x, max_y, radius, min_radius, growth_speed, tap_shrink, color)
+    local max_dist = 0
+    local overlaps = true
+    local x_pos = 0
+    local y_pos = 0
 
+    for i = 1, 5 do
+        local x = math.random(min_x, max_x)
+        local y = math.random(min_y, max_y)
+        
+        local tmp_dist = 0
+        local tmp_overlap = false
+        for bub, _ in pairs(self.bubble_set) do
+            local bx, by = bub.prop:getLoc()
+            
+            local dist = math.sqrt( (bx-x)^2 + (by-y)^2 )
+            
+            if dist < radius + bub.radius then
+                tmp_overlap = tmp_overlap or true
+            end
+            tmp_dist = tmp_dist + dist
+        end
+        
+        if (tmp_overlap == 
+        
+    end
+end 
 
