@@ -5,7 +5,7 @@ Bubble.__index = Bubble
 
 -- constructor
 
-function Bubble.new(x, y, starting_radius, growth_speed, color, box2d_world)
+function Bubble.new(x, y, starting_radius, growth_speed, tap_shrink, color, box2d_world)
     local bubble = setmetatable({}, Bubble)
 
     local deck = MOAIScriptDeck.new()
@@ -29,15 +29,7 @@ function Bubble.new(x, y, starting_radius, growth_speed, color, box2d_world)
     local body = box2d_world:addBody(MOAIBox2DBody.DYNAMIC)
     body:setTransform(x, y)
     
-    -- messes up the body location.
-    --prop:setAttrLink (MOAITransform.ATTR_X_LOC, body, MOAITransform.ATTR_X_LOC)
-    --prop:setAttrLink (MOAITransform.ATTR_Y_LOC, body, MOAITransform.ATTR_Y_LOC)
-    
-    -- prop doesn't copy location correctly
     prop:setAttrLink ( MOAIProp2D.INHERIT_LOC, body, MOAIProp2D.TRANSFORM_TRAIT ) 
-    
-    -- but, but... it's deprecated :(
-    --prop:setParent(body) 
     
     local fixture = body:addCircle(0, 0, starting_radius)
     fixture:setCollisionHandler(Bubble._collision_callback, MOAIBox2DArbiter.END)
@@ -48,7 +40,10 @@ function Bubble.new(x, y, starting_radius, growth_speed, color, box2d_world)
     
     bubble.start_radius = starting_radius
     bubble.radius = starting_radius
+    bubble.old_fixture_radius = starting_radius
+    
     bubble.growth_speed = growth_speed
+    bubble.tap_shrink = tap_shrink
     bubble.color = color
     
     bubble.deck = deck
@@ -57,6 +52,7 @@ function Bubble.new(x, y, starting_radius, growth_speed, color, box2d_world)
     bubble.fixture = fixture
     
     bubble.body.data = bubble
+    bubble.porp.data = bubble
     
     print(body:getPosition())
     print(prop:getLoc())
@@ -69,15 +65,30 @@ function Bubble.change_radius_by(self, value)
     self.radius = self.radius + value
 end
 
+function Bubble.increase_radius_with_time(self, delta_time)
+    self.radius = self.radius + (self.growth_speed * delta_time)
+end
+
 
 function Bubble.update_fixture(self)
+    if not self.fixture then
+        return
+    end
+    
+    local new_radius = math.floor(self.radius)
+    if new_radius == self.old_fixture_radius then
+        return
+    end
+
     self.fixture:destroy()
     --local x, y = self.body:getPosition()
-    self.fixture = self.body:addCircle(0, 0, self.radius)
+    self.fixture = self.body:addCircle(0, 0, new_radius)
     self.fixture:setCollisionHandler(Bubble._collision_callback, MOAIBox2DArbiter.END)
     self.fixture:setDensity(1)
     self.fixture:setFriction(0)
     self.body:resetMassData()
+    
+    self.old_fixture_radius = new_radius
 end
 
 

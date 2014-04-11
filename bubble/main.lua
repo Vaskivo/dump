@@ -9,6 +9,9 @@ viewport:setScale ( 640, 480 )
 layer = MOAILayer2D.new()
 layer:setViewport(viewport)
 
+partition = MOAIPartition.new()
+layer:setPartition(partition)
+
 --MOAIRenderMgr.setRenderTable( { layer } )
 MOAISim.pushRenderPass(layer)
 
@@ -21,14 +24,14 @@ layer:setBox2DWorld(world)
  
 bubble_list = {} 
  
-bubble_list[#bubble_list+1] = Bubble.new(-200, 0, 5, 1, {1, 0, 0, 1}, world)
-bubble_list[#bubble_list+1] = Bubble.new(-100, -50, 5, 1, {1, 0, 0, 1}, world)
+--bubble_list[#bubble_list+1] = Bubble.new(-200, 0, 5, 10, {1, 0, 0, 1}, world)
+bubble_list[#bubble_list+1] = Bubble.new(-100, -50, 5, 10, {1, 0, 0, 1}, world)
 --bubble_list[#bubble_list+1] = Bubble.new(30, 30, 25, 1, {1, 0, 0, 1}, world)
 --bubble_list[#bubble_list+1] = Bubble.new(0, -40, 35, 1, {1, 0, 0, 1}, world)
 --bubble_list[#bubble_list+1] = Bubble.new(-30, -40, 10, 1, {1, 0, 0, 1}, world)
 
 for _, y in pairs(bubble_list) do
-    layer:insertProp(y.prop)
+    partition:insertProp(y.prop)
 end
 
 timer = MOAITimer.new()
@@ -37,7 +40,7 @@ timer:setMode(MOAITimer.LOOP)
 timer:setListener(MOAITimer.EVENT_TIMER_LOOP, 
     function()    
         for _, y in pairs(bubble_list) do
-            y:change_radius_by(1)
+            --y:change_radius_by(1)
             y:update_fixture()
         end
     end
@@ -67,16 +70,21 @@ bubble1 = bubble_list[1]
 
 function main()
     while true do
-        print('ITER')
-        print(bubble1.prop:getLoc())
-        print(bubble1.body:getPosition())
-        print('#####')
+        local now = MOAISim.getElapsedTime()
+        local delta_time = now - run_time
+        
+        for _, bubble in ipairs(bubble_list) do
+            bubble:increase_radius_with_time(delta_time)
+        end
+        
         coroutine.yield()
     end
 end
 
 thread = MOAICoroutine.new()
---thread:run(main)
+
+run_time = MOAISim.getElapsedTime() -- I'm hoping this is a float
+thread:run(main)
     
     
     
