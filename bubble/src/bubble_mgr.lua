@@ -11,6 +11,8 @@ function BubbleManager.new(partition, box2dWorld, fixture_step)
     manager.partition = partition
     manager.fixture_step = fixture_step
     manager.box2dWorld = box2dWorld
+    
+    return manager
 end
 
 
@@ -19,15 +21,19 @@ function BubbleManager.start(self)
         self.timer:stop()
     end
     
+    print('CENAS')
+    
     self.timer = MOAITimer.new()
-    self.timer:setTime(self.fixture_step)
+    self.timer:setSpan(self.fixture_step)
+    self.timer:setMode(MOAITimer.LOOP)
     self.timer:setListener(MOAITimer.EVENT_TIMER_LOOP,
         function()
             for bubble, _ in pairs(self.bubble_set) do
                 bubble:update_fixture()
             end
         end
-        )
+    )
+    self.timer:start()
 end
 
 function BubbleManager.stop(self)
@@ -38,10 +44,12 @@ end
 
 
 function BubbleManager.create_bubble(self, x, y, radius, min_radius, growth_speed, tap_shrink, color)
-    local bubble = Bubble.new(x, y, radius, min_radius, growth_speed, color, self.box2dWorld)
+    local bubble = Bubble.new(x, y, radius, min_radius, growth_speed, tap_shrink, color, self.box2dWorld)
     self.bubble_set[bubble] = true
     
     self.partition:insertProp(bubble.prop)    
+    
+    return bubble
 end
 
 
@@ -54,7 +62,21 @@ function BubbleManager.destroy_bubble(self, bubble)
 end
 
 
--- TEMP
+function BubbleManager.update_bubbles(self, delta_time)
+    for bubble, _ in pairs(self.bubble_set) do
+        bubble:increase_radius_with_time(delta_time)
+        if bubble.tapped then
+            bubble.radius = bubble.radius - bubble.tap_shrink
+            if bubble.radius < bubble.min_radius then
+                bubble.radius = bubble.min_radius 
+            end
+        end
+    end
+end
+
+
+
+--[[ TEMP
 
 function BubbleManager.spawn_bubble(self, min_x, min_y, max_x, max_y, radius, min_radius, growth_speed, tap_shrink, color)
     local max_dist = 0
@@ -83,4 +105,6 @@ function BubbleManager.spawn_bubble(self, min_x, min_y, max_x, max_y, radius, mi
         
     end
 end 
+]]--
 
+return BubbleManager

@@ -53,10 +53,7 @@ function Bubble.new(x, y, starting_radius, min_radius, growth_speed, tap_shrink,
     bubble.fixture = fixture
     
     bubble.body.data = bubble
-    bubble.porp.data = bubble
-    
-    print(body:getPosition())
-    print(prop:getLoc())
+    bubble.prop.data = bubble
     
     return bubble
 end
