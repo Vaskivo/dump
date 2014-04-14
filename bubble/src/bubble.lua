@@ -3,6 +3,13 @@ local Bubble = {}
 Bubble.__index = Bubble
 
 
+Bubble.states = { INIT = 0,
+                  RUNNING = 1,
+                  CLEANUP = 2,
+                  DEAD = 3
+                }
+
+
 -- constructor
 
 function Bubble.new(x, y, starting_radius, min_radius, growth_speed, tap_shrink, color, box2d_world)
@@ -42,6 +49,8 @@ function Bubble.new(x, y, starting_radius, min_radius, growth_speed, tap_shrink,
     bubble.radius = starting_radius
     bubble.old_fixture_radius = starting_radius
     
+    bubble.max_radius = starting_radius -- points
+    
     bubble.min_radius = min_radius
     bubble.growth_speed = growth_speed
     bubble.tap_shrink = tap_shrink
@@ -55,9 +64,50 @@ function Bubble.new(x, y, starting_radius, min_radius, growth_speed, tap_shrink,
     bubble.body.data = bubble
     bubble.prop.data = bubble
     
+    self.state = Bubble.states.INIT
+    
     return bubble
 end
 
+
+function Bubble.update(self, delta_time)
+
+    if self.state == Bubble.state.INIT then
+        -- do init stuff
+        self.state = Bubble.states.RUNNING -- temp
+        
+    elseif self.state == Bubble.state.RUNNING then
+        if self.tapped then
+            if self.radius > self.max_radius then
+                self.max_radius = self.radius
+            end
+        
+            self.radius = self.radius - self.tap_shrink
+            if self.radius <= self.min_radius then
+                self.radius = self.min_radius
+                self.state = Bubble.state.CLEANUP
+            end
+            self.tapped = false
+        end
+        self:increase_radius_with_time(delta_time)
+        
+    elseif self.state == Bubble.state.CLEANUP then
+        -- do cleanup stuff
+        self.state = Bubble.state.DEAD -- temp
+    end
+end
+
+function Bubble.destroy(self)
+    -- destroying physics
+    self.fixture:destroy()
+    self.body:destroy()
+    self.fixture = nil
+    self.body = nil
+    
+    -- destroying rendering data
+    self.prop = nil
+    self.deck = nil
+end
 
 function Bubble.change_radius_by(self, value)
     self.radius = self.radius + value
@@ -67,16 +117,9 @@ function Bubble.increase_radius_with_time(self, delta_time)
     self.radius = self.radius + (self.growth_speed * delta_time)
 end
 
-function Bubble.register_tap(self)
-    if not self.tapped then
-        return
-    end
-    self.radius = self.radius - self.tap_shrink
-    
-    -- if radius < threshold then destroy()... or something
-    self.tapped = false
+function Bubble.get_points(self) -- may be overriden for SPECIAL BUBBLES!!
+    return self.max_radius
 end
-
 
 function Bubble.update_fixture(self)
     if not self.fixture then

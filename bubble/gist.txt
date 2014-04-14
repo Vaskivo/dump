@@ -37,3 +37,16 @@ The game is divided into levels.
     - Scoring: You score points for each circle eliminated equal to *the maximum size 
         it reached*. This gives a "push your luck" aspect to the game.
      
+     
+     
+     
+SLOT EVENTS
+
+- tapPower ++
+- tapPower --
+- growthSpeed ++
+- growthSpeed --
+- numBubble ++
+- numBubble --
+- speed ++
+- speed --
