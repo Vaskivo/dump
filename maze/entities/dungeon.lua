@@ -1,5 +1,5 @@
  
-local utils = require 'utils' 
+local Utils = require 'utils/Utils' 
 
 -- for the cell matrix
 local function insert_in_matrix(matrix, x, y, data)
@@ -13,18 +13,49 @@ local function get_from_matrix(matrix, x, y)
   end
 end
 
-local function get_max_index(table)
-  if not table then
-    return 0
+local function get_max_index(tbl)
+  local max_index = -999
+  
+  if tbl then
+    for i, _ in pairs(tbl) do
+      if type(i) == 'number' then
+        max_index = math.max(max_index, i)
+      end
+    end
   end
-  local max_index = 0
-  for i, _ in pairs(table) do
+  
+  return max_index
+end
+
+local function get_min_index(tbl)
+  local min_index = 999
+  
+  if tbl then
+    for i, _ in pairs(tbl) do
+      if type(i) == 'number' then
+        min_index = math.min(min_index, i)
+      end
+    end
+  end
+  
+  return min_index
+end
+  
+local function get_min_max_indexes(tbl)
+  local min_index = 999
+  local max_index = -999
+  if not tbl then
+    return min_index, max_index
+  end
+  for i, _ in pairs(tbl) do
     if type(i) == 'number' then
+      min_index = math.min(min_index, i)
       max_index = math.max(max_index, i)
     end
   end
-  return max_index
+  return min_index, max_index
 end
+	
 
  
 local Dungeon = {}
@@ -69,14 +100,17 @@ function Dungeon.get_cells_by_tag(self, tag)
 end
                 
 function Dungeon.pprint(self)
-  local max_x = get_max_index(self.cells)
-  local t = utils.map(get_max_index, self.cells) 
-  t = utils.filter(nil, t)
-  local max_y = math.max(unpack(t))
+  local x_min, x_max = get_min_max_indexes(self.cells)
+  local y_min_t = Utils.map(get_min_index, self.cells) 
+  local y_max_t = Utils.map(get_max_index, self.cells) 
+  y_min_t = Utils.filter(nil, y_min_t)
+  y_max_t = Utils.filter(nil, y_max_t)
+  local y_min = math.min(unpack(y_min_t))
+  local y_max = math.max(unpack(y_max_t))
   str = ''
-  for y = max_y, 1, -1 do 
+  for y = y_max, y_min, -1 do 
     row = ''
-    for x = 1, max_x do
+    for x = x_min, x_max do
       if self:get_cell_by_position(x, y) then
         row = row .. '0'
       else
